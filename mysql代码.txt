@@ -1,0 +1,75 @@
+-- 1. 科室表
+CREATE TABLE IF NOT EXISTS departments (
+    dept_id INT PRIMARY KEY AUTO_INCREMENT,
+    dept_name VARCHAR(50) NOT NULL UNIQUE COMMENT '科室名称'
+);
+
+-- 2. 诊室表
+CREATE TABLE IF NOT EXISTS rooms (
+    room_id INT PRIMARY KEY AUTO_INCREMENT,
+    room_num VARCHAR(20) NOT NULL UNIQUE COMMENT '诊室编号',
+    dept_id INT NOT NULL COMMENT '所属科室',
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+-- 3. 员工表（医生/护士/行政）
+CREATE TABLE IF NOT EXISTS employees (
+    emp_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_name VARCHAR(50) NOT NULL,
+    position VARCHAR(30) NOT NULL COMMENT '岗位：医生/护士/行政',
+    title VARCHAR(30) COMMENT '职称（仅医生）',
+    dept_id INT COMMENT '所属科室',
+    status VARCHAR(20) DEFAULT '在岗' COMMENT '工作状态',
+    contact VARCHAR(20) COMMENT '联系方式',
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+-- 4. 医生排班表
+CREATE TABLE IF NOT EXISTS doctor_schedules (
+    schedule_id INT PRIMARY KEY AUTO_INCREMENT,
+    emp_id INT NOT NULL COMMENT '医生ID',
+    room_id INT NOT NULL COMMENT '诊室ID',
+    start_time DATETIME NOT NULL COMMENT '接诊开始时间',
+    end_time DATETIME NOT NULL COMMENT '接诊结束时间',
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id),
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+);
+
+-- 5. 患者预约表
+CREATE TABLE IF NOT EXISTS patient_appointments (
+    appt_id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_name VARCHAR(50) NOT NULL,
+    dept_id INT NOT NULL,
+    contact VARCHAR(20) NOT NULL,
+    expected_arrive DATETIME NOT NULL COMMENT '预计到达时间',
+    status VARCHAR(20) DEFAULT '未就诊' COMMENT '状态：未就诊/已完成',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. 患者就诊表
+CREATE TABLE IF NOT EXISTS patient_visits (
+    visit_id INT PRIMARY KEY AUTO_INCREMENT,
+    appt_id INT COMMENT '关联预约ID（若无则为NULL）',
+    patient_name VARCHAR(50) NOT NULL,
+    dept_id INT NOT NULL,
+    contact VARCHAR(20) NOT NULL,
+    gender CHAR(2),
+    id_card VARCHAR(20),
+    room_id INT NOT NULL,
+    visit_status VARCHAR(20) DEFAULT '就诊中' COMMENT '状态：就诊中/已离院',
+    visit_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (appt_id) REFERENCES patient_appointments(appt_id),
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id),
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+);
+
+-- 7. 费用结算表
+CREATE TABLE IF NOT EXISTS billing (
+    bill_id INT PRIMARY KEY AUTO_INCREMENT,
+    visit_id INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    insurance_amount DECIMAL(10,2) DEFAULT 0,
+    self_pay_amount DECIMAL(10,2) NOT NULL,
+    pay_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (visit_id) REFERENCES patient_visits(visit_id)
+);

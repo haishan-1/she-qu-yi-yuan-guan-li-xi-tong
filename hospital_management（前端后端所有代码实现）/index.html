@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区医院门诊管理系统</title>
+    <style>
+        /* 全局样式重置和基础设置 */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+        }
+        
+        body { 
+            background-color: #f5f7fa;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 页面头部 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        /* 角色切换按钮组 */
+        .role-tab {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .role-tab button { 
+            padding: 12px 30px; 
+            border: none; 
+            background: #3498db; 
+            color: white;
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .role-tab button:hover { 
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* 功能标签按钮组 */
+        .func-tab {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .func-tab button { 
+            padding: 8px 20px; 
+            border: none; 
+            background: #ecf0f1; 
+            color: #2c3e50;
+            border-radius: 6px; 
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .func-tab button:hover { 
+            background: #3498db;
+            color: white;
+        }
+        
+        /* 内容容器 */
+        .role-content { 
+            display: none; 
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .tab-content { 
+            display: none; 
+        }
+        
+        /* 表单样式 */
+        .form-item { 
+            margin-bottom: 20px; 
+        }
+        
+        label { 
+            display: inline-block; 
+            width: 120px; 
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        input, select { 
+            padding: 10px 15px; 
+            width: 300px;
+            border: 1px solid #ddd; 
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        button[type="submit"] { 
+            padding: 12px 35px; 
+            background: #2ecc71; 
+            color: white;
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button[type="submit"]:hover { 
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(46, 204, 113, 0.2);
+        }
+        
+        /* 表格样式 */
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        th { 
+            background: #2c3e50;
+            color: white;
+            padding: 15px; 
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        td { 
+            padding: 15px; 
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 操作按钮 */
+        .oper-btn { 
+            padding: 6px 15px; 
+            background: #17a2b8; 
+            color: white;
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .oper-btn:hover { 
+            background: #138496;
+        }
+        
+        /* 统计结果样式 */
+        #statResult {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            border-left: 4px solid #3498db;
+        }
+        
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .role-content {
+                padding: 20px;
+            }
+            
+            input, select {
+                width: 100%;
+            }
+            
+            label {
+                width: 100%;
+            }
+            
+            .role-tab, .func-tab {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <div class="header">
+        <h1>社区医院门诊管理系统</h1>
+        <p>高效 · 便捷 · 智能的门诊管理解决方案</p>
+    </div>
+
+    <!-- 角色选择标签 -->
+    <div class="role-tab">
+        <button onclick="showRole('patient')">患者端</button>
+        <button onclick="showRole('reception')">前台端</button>
+        <button onclick="showRole('admin')">管理端</button>
+    </div>
+
+    <!-- 患者端内容 -->
+    <div id="patient" class="role-content">
+        <div class="func-tab">
+            <button onclick="showTab('appointment', 'patient')">患者预约</button>
+            <button onclick="showTab('visit_query', 'patient')">就诊查询</button>
+        </div>
+
+        <!-- 患者预约表单 -->
+        <div id="appointment" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">患者预约</h3>
+            <form id="appointmentForm">
+                <div class="form-item">
+                    <label>患者姓名：</label>
+                    <input type="text" name="patient_name" required placeholder="请输入姓名">
+                </div>
+                <div class="form-item">
+                    <label>就诊科室：</label>
+                    <select name="dept_id" required>
+                        <option value="">请选择科室</option>
+                        <option value="1">内科</option>
+                        <option value="2">外科</option>
+                        <option value="3">儿科</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>联系电话：</label>
+                    <input type="tel" name="contact" required placeholder="请输入11位手机号">
+                </div>
+                <div class="form-item">
+                    <label>预计到达时间：</label>
+                    <input type="datetime-local" name="expected_arrive" required>
+                </div>
+                <button type="submit">提交预约</button>
+            </form>
+        </div>
+
+        <!-- 患者就诊查询 -->
+        <div id="visit_query" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">我的就诊记录</h3>
+            <div class="form-item">
+                <label>姓名：</label>
+                <input type="text" id="query_name" required placeholder="请输入姓名">
+                <button onclick="queryPatientVisit()" class="oper-btn">查询</button>
+            </div>
+            <table id="visitTable">
+                <thead>
+                    <tr><th>就诊ID</th><th>科室</th><th>诊室</th><th>就诊状态</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 前台端内容 -->
+    <div id="reception" class="role-content">
+        <div class="func-tab">
+            <button onclick="showTab('reception_visit', 'reception')">就诊登记</button>
+            <button onclick="showTab('reception_appt', 'reception')">预约管理</button>
+            <button onclick="showTab('reception_billing', 'reception')">费用结算</button>
+            <button onclick="showTab('reception_list', 'reception')">就诊列表</button>
+        </div>
+
+        <!-- 就诊登记 -->
+        <div id="reception_visit" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">就诊登记</h3>
+            <form id="visitForm">
+                <div class="form-item">
+                    <label>患者姓名：</label>
+                    <input type="text" name="patient_name" required placeholder="请输入姓名">
+                </div>
+                <div class="form-item">
+                    <label>就诊科室：</label>
+                    <select name="dept_id" required>
+                        <option value="">请选择科室</option>
+                        <option value="1">内科</option>
+                        <option value="2">外科</option>
+                        <option value="3">儿科</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>联系电话：</label>
+                    <input type="tel" name="contact" required placeholder="请输入11位手机号">
+                </div>
+                <div class="form-item">
+                    <label>性别：</label>
+                    <select name="gender" required>
+                        <option value="">请选择性别</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>身份证号：</label>
+                    <input type="text" name="id_card" required placeholder="请输入身份证号">
+                </div>
+                <div class="form-item">
+                    <label>诊室：</label>
+                    <select name="room_id" required>
+                        <option value="">请选择诊室</option>
+                        <option value="1">内1室</option>
+                        <option value="2">外1室</option>
+                        <option value="3">儿1室</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>预约ID（选填）：</label>
+                    <input type="number" name="appt_id" placeholder="无预约则留空">
+                </div>
+                <button type="submit">提交登记</button>
+            </form>
+        </div>
+
+        <!-- 预约管理 -->
+        <div id="reception_appt" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">预约列表（未就诊）</h3>
+            <table id="apptTable">
+                <thead>
+                    <tr>
+                        <th>预约ID</th><th>患者姓名</th><th>就诊科室</th><th>预计到达时间</th><th>操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- 费用结算 -->
+        <div id="reception_billing" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">费用结算</h3>
+            <form id="billingForm">
+                <div class="form-item">
+                    <label>就诊ID：</label>
+                    <input type="number" name="visit_id" required placeholder="请输入就诊ID">
+                </div>
+                <div class="form-item">
+                    <label>总金额（元）：</label>
+                    <input type="number" step="0.01" name="total_amount" required placeholder="保留2位小数">
+                </div>
+                <div class="form-item">
+                    <label>医保金额（元）：</label>
+                    <input type="number" step="0.01" name="insurance_amount" placeholder="无医保则填0">
+                </div>
+                <div class="form-item">
+                    <label>自费金额（元）：</label>
+                    <input type="number" step="0.01" name="self_pay_amount" required placeholder="保留2位小数">
+                </div>
+                <button type="submit">提交结算</button>
+            </form>
+        </div>
+
+        <!-- 就诊列表 -->
+        <div id="reception_list" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">就诊列表</h3>
+            <table id="receptionVisitTable">
+                <thead>
+                    <tr>
+                        <th>就诊ID</th><th>患者姓名</th><th>科室</th><th>诊室</th><th>就诊状态</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 管理端内容 -->
+    <div id="admin" class="role-content">
+        <div class="func-tab">
+            <button onclick="showTab('admin_schedule', 'admin')">诊室/排班管理</button>
+            <button onclick="showTab('admin_stat', 'admin')">收入统计</button>
+            <button onclick="showTab('admin_employee', 'admin')">员工管理</button>
+        </div>
+
+        <!-- 诊室/排班管理 -->
+        <div id="admin_schedule" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">医生排班添加</h3>
+            <form id="scheduleForm">
+                <div class="form-item">
+                    <label>医生ID：</label>
+                    <input type="number" name="emp_id" required placeholder="测试数据：1/2">
+                </div>
+                <div class="form-item">
+                    <label>诊室ID：</label>
+                    <select name="room_id" required>
+                        <option value="">请选择诊室</option>
+                        <option value="1">内1室</option>
+                        <option value="2">外1室</option>
+                        <option value="3">儿1室</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>接诊开始时间：</label>
+                    <input type="datetime-local" name="start_time" required>
+                </div>
+                <div class="form-item">
+                    <label>接诊结束时间：</label>
+                    <input type="datetime-local" name="end_time" required>
+                </div>
+                <button type="submit">添加排班</button>
+            </form>
+        </div>
+
+        <!-- 收入统计 -->
+        <div id="admin_stat" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">门诊收入统计</h3>
+            <div class="form-item">
+                <label>统计日期：</label>
+                <input type="date" id="stat_date" value="<?php echo date('Y-m-d'); ?>">
+                <button onclick="queryStat()" class="oper-btn">查询</button>
+            </div>
+            <div id="statResult"></div>
+        </div>
+
+        <!-- 员工管理 -->
+        <div id="admin_employee" class="tab-content">
+            <h3 style="margin-bottom:20px; color:#2c3e50;">员工列表</h3>
+            <table id="employeeTable">
+                <thead>
+                    <tr>
+                        <th>员工ID</th><th>姓名</th><th>岗位</th><th>职称</th><th>所属科室</th><th>工作状态</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const BASE_API = 'http://localhost:8080/hospital_management/api/';
+
+        // 角色切换
+        function showRole(roleName) {
+            // 隐藏所有角色内容
+            document.querySelectorAll('.role-content').forEach(el => {
+                el.style.display = 'none';
+            });
+            // 显示选中的角色内容
+            document.getElementById(roleName).style.display = 'block';
+            
+            // 默认显示第一个标签
+            const firstTab = document.querySelector(`#${roleName} .func-tab button`);
+            if (firstTab) {
+                firstTab.click();
+            }
+            
+            // 特殊初始化
+            if (roleName === 'reception') {
+                loadAppointments();
+            }
+            if (roleName === 'admin') {
+                loadEmployees();
+            }
+        }
+
+        // 功能标签切换
+        function showTab(tabName, roleName) {
+            // 隐藏当前角色的所有标签内容
+            document.querySelectorAll(`#${roleName} .tab-content`).forEach(el => {
+                el.style.display = 'none';
+            });
+            // 显示选中的标签内容
+            document.getElementById(tabName).style.display = 'block';
+            
+            // 加载就诊列表数据
+            if (tabName === 'reception_list') {
+                loadVisits();
+            }
+        }
+
+        // 患者预约提交
+        document.getElementById('appointmentForm').addEventListener('submit', e => {
+            e.preventDefault();
+            fetch(BASE_API + 'appointment_add.php', {
+                method: 'POST',
+                body: new FormData(e.target)
+            }).then(res => res.json()).then(data => {
+                alert(data.msg);
+                if (data.code === 200) {
+                    e.target.reset();
+                }
+            }).catch(err => {
+                alert('提交失败，请检查网络或接口');
+                console.error(err);
+            });
+        });
+
+        // 患者查询就诊记录
+        function queryPatientVisit() {
+            const name = document.getElementById('query_name').value;
+            fetch(BASE_API + `visit_query.php?name=${encodeURIComponent(name)}`)
+            .then(res => res.json()).then(data => {
+                const tbody = document.getElementById('visitTable').querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (data.code === 200 && data.data.length > 0) {
+                    data.data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.visit_id}</td>
+                            <td>${item.dept_name}</td>
+                            <td>${item.room_num}</td>
+                            <td>${item.visit_status}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#7f8c8d;">暂无记录</td></tr>';
+                }
+            }).catch(err => {
+                alert('查询失败，请检查网络或接口');
+                console.error(err);
+            });
+        }
+
+        // 前台-就诊登记
+        document.getElementById('visitForm').addEventListener('submit', e => {
+            e.preventDefault();
+            fetch(BASE_API + 'visit_add.php', {
+                method: 'POST',
+                body: new FormData(e.target)
+            }).then(res => res.json()).then(data => {
+                alert(data.msg);
+                if (data.code === 200) {
+                    e.target.reset();
+                }
+            }).catch(err => {
+                alert('提交失败，请检查网络或接口');
+                console.error(err);
+            });
+        });
+
+        // 前台-加载预约列表
+        function loadAppointments() {
+            fetch(BASE_API + 'appointment_list.php')
+            .then(res => res.json()).then(data => {
+                const tbody = document.getElementById('apptTable').querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (data.code === 200 && data.data.length > 0) {
+                    data.data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.appt_id}</td>
+                            <td>${item.patient_name}</td>
+                            <td>${item.dept_id == 1 ? '内科' : item.dept_id == 2 ? '外科' : '儿科'}</td>
+                            <td>${new Date(item.expected_arrive).toLocaleString()}</td>
+                            <td><button onclick="completeAppt(${item.appt_id})" class="oper-btn">标记完成</button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#7f8c8d;">暂无预约记录</td></tr>';
+                }
+            }).catch(err => {
+                console.error('加载预约列表失败：', err);
+            });
+        }
+
+        // 前台-标记预约完成
+        function completeAppt(id) {
+            fetch(BASE_API + `appointment_complete.php?appt_id=${id}`)
+            .then(res => res.json()).then(data => {
+                alert(data.msg);
+                if (data.code === 200) {
+                    loadAppointments(); // 刷新列表
+                }
+            }).catch(err => {
+                alert('操作失败，请检查网络或接口');
+                console.error(err);
+            });
+        }
+
+        // 前台-费用结算
+        document.getElementById('billingForm').addEventListener('submit', e => {
+            e.preventDefault();
+            fetch(BASE_API + 'billing_add.php', {
+                method: 'POST',
+                body: new FormData(e.target)
+            }).then(res => res.json()).then(data => {
+                alert(data.msg);
+                if (data.code === 200) {
+                    e.target.reset();
+                    loadVisits(); // 刷新就诊列表
+                }
+            }).catch(err => {
+                alert('提交失败，请检查网络或接口');
+                console.error(err);
+            });
+        });
+
+        // 前台-加载就诊列表
+        function loadVisits() {
+            fetch(BASE_API + 'visit_list.php')
+            .then(res => res.json()).then(data => {
+                const tbody = document.getElementById('receptionVisitTable').querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (data.code === 200 && data.data.length > 0) {
+                    data.data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.visit_id}</td>
+                            <td>${item.patient_name}</td>
+                            <td>${item.dept_name}</td>
+                            <td>${item.room_num}</td>
+                            <td>${item.visit_status}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#7f8c8d;">暂无就诊记录</td></tr>';
+                }
+            }).catch(err => {
+                console.error('加载就诊列表失败：', err);
+            });
+        }
+
+        // 管理端-添加排班
+        document.getElementById('scheduleForm').addEventListener('submit', e => {
+            e.preventDefault();
+            fetch(BASE_API + 'schedule_add.php', {
+                method: 'POST',
+                body: new FormData(e.target)
+            }).then(res => res.json()).then(data => {
+                alert(data.msg);
+                if (data.code === 200) {
+                    e.target.reset();
+                }
+            }).catch(err => {
+                alert('提交失败，请检查网络或接口');
+                console.error(err);
+            });
+        });
+
+        // 管理端-收入统计
+        function queryStat() {
+            const date = document.getElementById('stat_date').value;
+            fetch(BASE_API + `stat_revenue.php?date=${date}`)
+            .then(res => res.json()).then(data => {
+                const statResult = document.getElementById('statResult');
+                
+                if (data.code === 200) {
+                    const revenue = data.data.total_revenue || 0;
+                    const count = data.data.visit_count || 0;
+                    
+                    statResult.innerHTML = `
+                        日期：${date}<br>
+                        总收入：¥${parseFloat(revenue).toFixed(2)}<br>
+                        就诊人次：${count}
+                    `;
+                } else {
+                    statResult.innerHTML = '统计失败：' + data.msg;
+                }
+            }).catch(err => {
+                alert('查询失败，请检查网络或接口');
+                console.error(err);
+            });
+        }
+
+        // 管理端-加载员工列表
+        function loadEmployees() {
+            fetch(BASE_API + 'employee_list.php')
+            .then(res => res.json()).then(data => {
+                const tbody = document.getElementById('employeeTable').querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (data.code === 200 && data.data.length > 0) {
+                    data.data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.emp_id}</td>
+                            <td>${item.emp_name}</td>
+                            <td>${item.position}</td>
+                            <td>${item.title || '-'}</td>
+                            <td>${item.dept_name || '-'}</td>
+                            <td>${item.status}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#7f8c8d;">暂无员工记录</td></tr>';
+                }
+            }).catch(err => {
+                console.error('加载员工列表失败：', err);
+            });
+        }
+
+        // 默认显示患者端
+        window.onload = () => {
+            showRole('patient');
+        };
+    </script>
+</body>
+</html>
